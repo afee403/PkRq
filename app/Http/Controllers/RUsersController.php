@@ -21,31 +21,15 @@ class RUsersController extends Controller
     public function regster(Request $request){
         if ($request->has('openid')) {
             $user = new RUsers();
-            $linkhonor = new LinkUHs();
             try {
                 DB::beginTransaction();
                     // 用户数据
                     $user->fillable(array_keys($request->all()));
                     $user->fill($request->all());
                     $user->save();
-                    // 注册即获得初级称号
-                    $lv1 = RHonors::first();
-                    $linkhonor->fill([
-                        'rid' =>  $user->id,
-                        'hoid' => $lv1->hoid
-                    ]);
-                    // 初始化隐私设置
-                    $this->initProvicySettings($user->id);
-                    $linkhonor->save();
                 DB::commit();
                 // 获取用户基本信息
                 $data = RUsers::where('rid', $user->id)->first();
-                // 获取称号
-                $data['honors'] = LinkUHs::join('r_honors', 'link_u_hs.hoid', '=', 'r_honors.hoid')
-                        ->where('rid', $user->id)
-                        ->select('link_u_hs.*', 'r_honors.desc', 'r_honors.name')
-                        ->orderBy('created_at', 'desc')
-                        ->first();
                 // 获取勋章
                 $data['medals'] = LinkUMs::where('link_u_ms.rid', $user->id)
                         ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
@@ -95,12 +79,6 @@ class RUsersController extends Controller
             // try {
                 // 获取用户基本信息
                 $data = RUsers::where('rid', $request->rid)->first();
-                // 获取称号
-                $data['honors'] = LinkUHs::join('r_honors', 'link_u_hs.hoid', '=', 'r_honors.hoid')
-                        ->where('rid', $request->rid)
-                        ->select('link_u_hs.*', 'r_honors.desc', 'r_honors.name')
-                        ->orderBy('created_at', 'desc')
-                        ->first();
                 // 获取勋章
                 $data['medals'] = LinkUMs::where('link_u_ms.rid', $request->rid)
                         ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
@@ -119,24 +97,24 @@ class RUsersController extends Controller
 
     /**
      * 获取已获称号
+     * public function getHonor(Request $request){
+     *     if ($request->has('rid')) {
+     *         try {
+     *             // 获取称号
+     *             $data = LinkUHs::join('r_honors', 'link_u_hs.hoid', '=', 'r_honors.hoid')
+     *                     ->where('rid', $request->rid)
+     *                     ->select('link_u_hs.*', 'r_honors.desc', 'r_honors.name')
+     *                     ->orderBy('created_at', 'desc')
+     *                     ->first();
+     *             return returnData(true, '操作成功', $data);
+     *         } catch (\Throwable $th) {
+     *             return returnData(false, $th->getMessage());
+     *         }
+     *     }else{
+     *         return returnData(false, '缺少rid', null);
+     *     }
+     * }
      */
-    public function getHonor(Request $request){
-        if ($request->has('rid')) {
-            try {
-                // 获取称号
-                $data = LinkUHs::join('r_honors', 'link_u_hs.hoid', '=', 'r_honors.hoid')
-                        ->where('rid', $request->rid)
-                        ->select('link_u_hs.*', 'r_honors.desc', 'r_honors.name')
-                        ->orderBy('created_at', 'desc')
-                        ->first();
-                return returnData(true, '操作成功', $data);
-            } catch (\Throwable $th) {
-                return returnData(false, $th->getMessage());
-            }
-        }else{
-            return returnData(false, '缺少rid', null);
-        }
-    }
 
     /**
      * 获取已获勋章
@@ -253,92 +231,94 @@ class RUsersController extends Controller
 
     /**
      * 隐私设置
+     * public function doSettings(Request $request){
+     *     if ($request->has('rid')) {
+     *         $setting = null;
+     *         try {
+     *             // 获取隐私设置数据
+     *             $setting = RSettings::where('rid', $request->rid);
+     *             // 更新
+     *             if($setting->first()){
+     *                 if($setting->update($request->all())){
+     *                     $data = RSettings::where('rid', $request->rid)->first();
+     *                     return returnData(true, '操作成功', $data);
+     *                 }
+     *                 else return returnData(false, '保存失败', null);
+     *             }else{
+     *                 return returnData(false, '读取数据库失败', null);
+     *             }
+     *         } catch (\Throwable $th) {
+     *             return returnData(false, $th->getMessage());
+     *         }
+     *     }else{
+     *         return returnData(false, '缺少rid', null);
+     *     }
+     * }
      */
-    public function doSettings(Request $request){
-        if ($request->has('rid')) {
-            $setting = null;
-            try {
-                // 获取隐私设置数据
-                $setting = RSettings::where('rid', $request->rid);
-                // 更新
-                if($setting->first()){
-                    if($setting->update($request->all())){
-                        $data = RSettings::where('rid', $request->rid)->first();
-                        return returnData(true, '操作成功', $data);
-                    }
-                    else return returnData(false, '保存失败', null);
-                }else{
-                    return returnData(false, '读取数据库失败', null);
-                }
-            } catch (\Throwable $th) {
-                return returnData(false, $th->getMessage());
-            }
-        }else{
-            return returnData(false, '缺少rid', null);
-        }
-    }
 
     /**
      * 隐私设置-重置
+     * public function resetSettings(Request $request){
+     *     if ($request->has('rid')){
+     *         if($this->initProvicySettings($request->rid)){
+     *             return returnData(true, '操作成功', RSettings::where('rid', $request->rid)->first());
+     *         }else{
+     *             return returnData(false, '重置失败', null);
+     *         }
+     *     }else{
+     *         return returnData(false, '缺少rid', null);
+     *     }
+     * }
      */
-    public function resetSettings(Request $request){
-        if ($request->has('rid')){
-            if($this->initProvicySettings($request->rid)){
-                return returnData(true, '操作成功', RSettings::where('rid', $request->rid)->first());
-            }else{
-                return returnData(false, '重置失败', null);
-            }
-        }else{
-            return returnData(false, '缺少rid', null);
-        }
-    }
 
     /**
      * 个人主页访问权限
+     * public function getProvicy(Request $request){
+     *     if($request->has('rid')){
+     *         try {
+     *             return returnData(true, '操作成功', RSettings::where('rid', $request->rid)->first());
+     *         } catch (\Throwable $th) {
+     *             return returnData(false, $th->getMessage());
+     *         }
+     *     }else{
+     *         return returnData(false, '缺少rid');
+     *     }
+     * }
      */
-    public function getProvicy(Request $request){
-        if($request->has('rid')){
-            try {
-                return returnData(true, '操作成功', RSettings::where('rid', $request->rid)->first());
-            } catch (\Throwable $th) {
-                return returnData(false, $th->getMessage());
-            }
-        }else{
-            return returnData(false, '缺少rid');
-        }
-    }
 
-    // 初始化隐私设置
-    private function initProvicySettings($rid){
-        if(isset($rid)){
-            $user = RUsers::where('rid', $rid)->get();
-            if($user){
-                DB::table('r_settings')->where('rid', $rid)->delete();
-                $setting = new RSettings();
-                $setting->rid = $rid;
-                $setting->job = 1; $setting->team = 1; $setting->run = 1;
-                return $setting->save();
-            }else{
-                return false;
-            }
-        }else{
-            return false;
-        }
-    }
+    /**
+     * 初始化隐私设置
+     * private function initProvicySettings($rid){
+     *     if(isset($rid)){
+     *         $user = RUsers::where('rid', $rid)->get();
+     *         if($user){
+     *             DB::table('r_settings')->where('rid', $rid)->delete();
+     *             $setting = new RSettings();
+     *             $setting->rid = $rid;
+     *             $setting->job = 1; $setting->team = 1; $setting->run = 1;
+     *             return $setting->save();
+     *         }else{
+     *             return false;
+     *         }
+     *     }else{
+     *         return false;
+     *     }
+     * }
+     * /
 
     /**
      * 查询所有校区
+     * public function getSchools(Request $request){
+     *     try {
+     *         return returnData(true, '操作成功', RUsers::where('team', '<>', 'system')
+     *             ->whereNotIn('team', ['system', ''])
+     *             ->whereNotNull('team')
+     *             ->select('team')
+     *             ->distinct()
+     *             ->get());
+     *     } catch (\Throwable $th) {
+     *         return returnData(false, $th->getMessage());
+     *     }
+     * }
      */
-    public function getSchools(Request $request){
-        try {
-            return returnData(true, '操作成功', RUsers::where('team', '<>', 'system')
-                ->whereNotIn('team', ['system', ''])
-                ->whereNotNull('team')
-                ->select('team')
-                ->distinct()
-                ->get());
-        } catch (\Throwable $th) {
-            return returnData(false, $th->getMessage());
-        }
-    }
 }

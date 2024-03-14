@@ -58,15 +58,6 @@ class PublicController extends Controller
             return returnData(false, $th->getMessage());
         }
     }
-    // 获取称号列表
-    public function getHonorAll(){
-        $honors = RHonors::get();
-        $data = [];
-        foreach($honors as $honor){
-            array_push($data, ['name'=>$honor->name, 'desc'=>$honor->desc]);
-        }
-        return returnData(true, "操作成功", $data);
-    }
     // 获取openid
     public function getOpenid(Request $request){
         $appid = $request->has('appid') ? $request->appid : env('WX_APPID');
