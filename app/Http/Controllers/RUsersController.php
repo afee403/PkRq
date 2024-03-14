@@ -31,11 +31,12 @@ class RUsersController extends Controller
                 // 获取用户基本信息
                 $data = RUsers::where('rid', $user->id)->first();
                 // 获取勋章
-                $data['medals'] = LinkUMs::where('link_u_ms.rid', $user->id)
-                        ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
-                        ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
-                        ->orderBy('created_at', 'asc')
-                        ->get();
+                $data['medals'] = LinkUMs::all();
+                // LinkUMs::where('link_u_ms.rid', $user->id)
+                //         ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
+                //         ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
+                //         ->orderBy('created_at', 'asc')
+                //         ->get();
                 return returnData(true, '操作成功', $data);
             } catch (\Throwable $th) {
                 DB::rollBack();
@@ -80,11 +81,12 @@ class RUsersController extends Controller
                 // 获取用户基本信息
                 $data = RUsers::where('rid', $request->rid)->first();
                 // 获取勋章
-                $data['medals'] = LinkUMs::where('link_u_ms.rid', $request->rid)
-                        ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
-                        ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+                $data['medals'] = LinkUMs::all();
+                // LinkUMs::where('link_u_ms.rid', $user->id)
+                //         ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
+                //         ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
+                //         ->orderBy('created_at', 'asc')
+                //         ->get();
                 return returnData(true, '操作成功', $data);
             // } catch (\Throwable $th) {
             //     return returnData(false, $th->getMessage());
@@ -123,11 +125,12 @@ class RUsersController extends Controller
         if ($request->has('rid')) {
             try {
                 // 获取勋章
-                $data = LinkUMs::where('link_u_ms.rid', $request->rid)
-                        ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
-                        ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
-                        ->orderBy('created_at', 'asc')
-                        ->get();
+                $data = RMedals::all();
+                // LinkUMs::where('link_u_ms.rid', $user->id)
+                //         ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
+                //         ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
+                //         ->orderBy('created_at', 'asc')
+                //         ->get();
                 return returnData(true, '操作成功', $data);
             } catch (\Throwable $th) {
                 return returnData(false, $th->getMessage());
@@ -304,7 +307,7 @@ class RUsersController extends Controller
      *         return false;
      *     }
      * }
-     * /
+     */
 
     /**
      * 查询所有校区
