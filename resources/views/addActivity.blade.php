@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>
-    Pop Run！ 跑鸭！创建课程活动
+    PkRq-创建活动
   </title>
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -260,7 +260,7 @@
           dataType: 'JSON',
           success: function(res) {
             alert(res.msg);
-            window.location.reload();
+            //window.location.reload();
           },
           error: function(data) {
 

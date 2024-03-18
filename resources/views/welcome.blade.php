@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Pop Run！ 跑鸭！</title>
+        <title>PkR！</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
@@ -62,19 +62,29 @@
                 margin-bottom: 30px;
             }
         </style>
+        <script>
+            var password = prompt('请输入管理密码：');
+            if(password != '123123'){
+                history.back();
+            }else{
+                localStorage.setItem('admin_password', '123123');
+            }
+        </script>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
             <div class="content">
                 <div class="title m-b-md">
-                    Pop Run !
+                    PkRq
                 </div>
                 <div class="links">
-                    <a href="#">基于校园运动的一款社交小程序</a>
+                    <a href="#">PkR后端管理</a>
                 </div>
                 <div class="links">
                     <a href="/addActivity">创建活动</a>
-                    <a href="/addCourse">创建课程</a>
+                    <a href="/manageActivity">管理活动</a>
+                    <a href="/addCourse">创建展示</a>
+                    <a href="/manageCourse">管理展示</a>
                 </div>
             </div>
         </div>

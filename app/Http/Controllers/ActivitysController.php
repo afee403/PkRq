@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\RActivitys;
 use App\RCourses;
 use DB;
-use App\RActivityImgs; //废弃，使用Images
 use App\Images;
 use App\RMedals;
 use App\LinkUAs;
@@ -78,6 +77,28 @@ class ActivitysController extends Controller
             }
         }else{
             return returnData(false, "标题、描述、封面图、勋章id缺一不可", null);
+        }
+    }
+
+    /**
+     * 删除指定活动
+     */
+    public function delActivity(Request $request) {
+        $target_id = $request->aid;
+        $target_ac = RActivitys::where('acid', $target_id)->first();
+        try {
+            DB::beginTransaction();
+                //删除活动
+                RActivitys::where('acid', $target_id)->delete();
+            DB::commit();
+            DB::beginTransaction();
+                //删除封面
+                Images::where('id', $target_ac->cover)->delete();
+            DB::commit();
+            return returnData(true, "操作成功", null);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return returnData(false, $th->getMessage());
         }
     }
 
@@ -182,14 +203,14 @@ class ActivitysController extends Controller
     }
 
     /**
-     * 创建课程
+     * 创建展示
      */
     public function doCourse(Request $request){
         if($request->has('title') && $request->has('text') && $request->has('img')){
             $course = new RCourses();
             $course->fill([
-                'title' => $request->title,  //课程标题
-                'text' => $request->text,    //课程内容
+                'title' => $request->title,  //展示标题
+                'text' => $request->text,    //展示内容
             ]);
             try {
                 DB::beginTransaction();
@@ -221,7 +242,28 @@ class ActivitysController extends Controller
     }
 
     /**
-     * 获取课程列表
+     * 删除指定展示
+     */
+    public function delCourse(Request $request) {
+        $target_id = $request->rid;
+        try {
+            DB::beginTransaction();
+                //删除展示
+                RCourses::where('rcid', $target_id)->delete();
+            DB::commit();
+            DB::beginTransaction();
+                //删除图片
+                Images::where('key_id', $target_id)->where('key', 'course')->delete();
+            DB::commit();
+            return returnData(true, "操作成功", null);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return returnData(false, $th->getMessage());
+        }
+    }
+
+    /**
+     * 获取展示列表
      */
     public function getCourses(Request $request){
         $request->has('num') ? $num = $request->num : $num = 2;
@@ -247,7 +289,7 @@ class ActivitysController extends Controller
     }
 
     /**
-     * 获取课程详细
+     * 获取展示详细
      */
     public function getCourseDetail(Request $request){
         if($request->has('rcid')){
@@ -264,7 +306,7 @@ class ActivitysController extends Controller
                 return returnData(false, $th->getMessage());
             }
         }else{
-            return returnData(false, "缺少课程rcid");
+            return returnData(false, "缺少展示rcid");
         }
     }
 

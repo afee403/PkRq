@@ -23,7 +23,13 @@ Route::get('/', function () {
 Route::get('/addActivity', function () {
     return view('addActivity');
 });
+Route::get('/manageActivity', function () {
+    return view('manageActivity');
+});
 Route::get('/addCourse', function () {
     return view('addCourse');
+});
+Route::get('/manageCourse', function () {
+    return view('manageCourse');
 });
 Auth::routes();
