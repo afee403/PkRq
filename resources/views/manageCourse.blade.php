@@ -64,7 +64,6 @@ while ($row = mysqli_fetch_assoc($result)) {
   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.js"></script>
   <script>
     function actDel(id) {
-      alert("确定删除" + id + "吗？");
       $.ajax({
         url: "http://127.0.0.1:8000/" + 'api/pub/delCourse',
         method: "post",

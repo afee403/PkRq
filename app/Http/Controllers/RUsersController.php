@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use App\RUsers;
-use App\LinkUHs;
-use App\RHonors;
 use App\RMedals;
 use App\LinkUMs;
 use App\RSettings;
@@ -31,12 +29,11 @@ class RUsersController extends Controller
                 // 获取用户基本信息
                 $data = RUsers::where('rid', $user->id)->first();
                 // 获取勋章
-                $data['medals'] = LinkUMs::all();
-                // LinkUMs::where('link_u_ms.rid', $user->id)
-                //         ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
-                //         ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
-                //         ->orderBy('created_at', 'asc')
-                //         ->get();
+                $data = LinkUMs::where('rid', $request->rid)->get();
+                //        ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
+                //        ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
+                //        ->orderBy('created_at', 'asc')
+                //        ->get();
                 return returnData(true, '操作成功', $data);
             } catch (\Throwable $th) {
                 DB::rollBack();
@@ -81,12 +78,11 @@ class RUsersController extends Controller
                 // 获取用户基本信息
                 $data = RUsers::where('rid', $request->rid)->first();
                 // 获取勋章
-                $data['medals'] = LinkUMs::all();
-                // LinkUMs::where('link_u_ms.rid', $user->id)
-                //         ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
-                //         ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
-                //         ->orderBy('created_at', 'asc')
-                //         ->get();
+                $data = LinkUMs::where('rid', $request->rid)->get();
+                //        ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
+                //        ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
+                //        ->orderBy('created_at', 'asc')
+                //        ->get();
                 return returnData(true, '操作成功', $data);
             // } catch (\Throwable $th) {
             //     return returnData(false, $th->getMessage());
@@ -98,25 +94,29 @@ class RUsersController extends Controller
 
 
     /**
-     * 获取已获称号
-     * public function getHonor(Request $request){
-     *     if ($request->has('rid')) {
-     *         try {
-     *             // 获取称号
-     *             $data = LinkUHs::join('r_honors', 'link_u_hs.hoid', '=', 'r_honors.hoid')
-     *                     ->where('rid', $request->rid)
-     *                     ->select('link_u_hs.*', 'r_honors.desc', 'r_honors.name')
-     *                     ->orderBy('created_at', 'desc')
-     *                     ->first();
-     *             return returnData(true, '操作成功', $data);
-     *         } catch (\Throwable $th) {
-     *             return returnData(false, $th->getMessage());
-     *         }
-     *     }else{
-     *         return returnData(false, '缺少rid', null);
-     *     }
-     * }
+     * 获取徽章
      */
+    public function lightMedal(Request $request){
+        if ($request->has('rid') && $request->has('meid')) {
+            try {
+                DB::beginTransaction();
+                    // 勋章授予
+                    $me = new LinkUMs();
+                    $me->fill([
+                        'rid' => $request->rid,
+                        'meid' => $request->meid
+                    ]);
+                    $me->save();
+                DB::commit();
+                return returnData(true, '操作成功', null);
+            } catch (\Throwable $th) {
+                return returnData(false, $th->getMessage());
+            }
+        }else{
+            return returnData(false, '缺少信息', null);
+        }
+    }
+    
 
     /**
      * 获取已获勋章
@@ -125,12 +125,11 @@ class RUsersController extends Controller
         if ($request->has('rid')) {
             try {
                 // 获取勋章
-                $data = RMedals::all();
-                // LinkUMs::where('link_u_ms.rid', $user->id)
-                //         ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
-                //         ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
-                //         ->orderBy('created_at', 'asc')
-                //         ->get();
+                $data = LinkUMs::where('rid', $request->rid)->get();
+                //        ->leftJoin('r_medals', 'link_u_ms.meid', '=', 'r_medals.meid')
+                //        ->select('link_u_ms.*', 'r_medals.mkey', 'r_medals.type', 'r_medals.name', 'r_medals.desc', 'r_medals.img')
+                //        ->orderBy('created_at', 'asc')
+                //        ->get();
                 return returnData(true, '操作成功', $data);
             } catch (\Throwable $th) {
                 return returnData(false, $th->getMessage());

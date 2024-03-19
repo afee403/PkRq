@@ -260,7 +260,7 @@
           dataType: 'JSON',
           success: function(res) {
             alert(res.msg);
-            //window.location.reload();
+            window.location.reload();
           },
           error: function(data) {
 

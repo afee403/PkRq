@@ -1,4 +1,6 @@
 <?php
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept');
 $connect = mysqli_connect("localhost", "root", "1773@qwer", "pkuq");
 $sql = "SELECT * FROM r_activitys";
 $result = mysqli_query($connect, $sql);
@@ -58,6 +60,7 @@ while ($row = mysqli_fetch_assoc($result)) {
       <td><?php echo $activity['period']?></td>
       <td>
         <button id="delbutton" onclick="actDel(<?php echo $activity['acid']?>)"  class="layui-btn layui-btn-danger layui-btn-xs">删除</a>
+        <button id="qrbutton" onclick="getQR(<?php echo $activity['meid']?>)"  class="layui-btn layui-btn-normal layui-btn-xs">导出</a>
       </td>
     </tr>
     <?php }?>
@@ -65,7 +68,6 @@ while ($row = mysqli_fetch_assoc($result)) {
   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.js"></script>
   <script>
     function actDel(id) {
-      alert("确定删除" + id + "吗？");
       $.ajax({
         url: "http://127.0.0.1:8000/" + 'api/pub/delActivity',
         method: "post",
@@ -74,6 +76,33 @@ while ($row = mysqli_fetch_assoc($result)) {
         success: function(res) {
             alert(res.msg);
             window.location.reload();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            /*弹出jqXHR对象的信息*/
+            alert(jqXHR.responseText);
+            alert(jqXHR.status);
+            alert(jqXHR.readyState);
+            alert(jqXHR.statusText);
+            /*弹出其他两个参数的信息*/
+            alert(textStatus);
+            alert(errorThrown);
+        }
+      });
+    }
+    function getQR(id) {
+      $.ajax({
+        url: "http://127.0.0.1:8000/" + 'api/pub/getActivity',
+        method: "get",
+        data: { "mid": id},
+        dataType: 'JSON',
+        responseType: 'blob',
+        success: function(res) {
+            alert(res.msg);
+            let blob = new Blob([res.data],{type: "image/png"});
+            let iurl = window.URL.createObjectURL(blob);
+            let img = new Image();
+            img.src = iurl;
+            document.body.appendChild(img);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             /*弹出jqXHR对象的信息*/

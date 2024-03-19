@@ -65,6 +65,8 @@ Route::prefix('pub')->group(function () {
     Route::post('/doActivity', 'ActivitysController@doActivity');
     // 删除活动
     Route::post('/delActivity', 'ActivitysController@delActivity');
+    // 生成活动二维码
+    Route::get('/getActivity', 'ActivitysController@getActivity');
     // 获取活动列表
     Route::post('/getList', 'ActivitysController@getList');
     // 获取轮播活动
@@ -92,8 +94,8 @@ Route::prefix('user')->group(function () {
     Route::post('/getUser', 'RUsersController@getUser');
     //获取个人信息（含勋章称号）
     Route::post('/getUserAll', 'RUsersController@getUserAll');
-    //获取已获称号
-    // Route::post('/getHonor', 'RUsersController@getHonor');
+    //获取徽章
+    Route::post('/lightMedal', 'RUsersController@lightMedal');
     //获取已获勋章
     Route::post('/getMedal', 'RUsersController@getMedal');
     //上传头像

@@ -103,6 +103,46 @@ class ActivitysController extends Controller
     }
 
     /**
+     * 生成活动二维码
+     */
+    public function getActivity(Request $request) {
+        $target_id = $request->mid;
+        $appid = 'wxa9d65e48f04ffbd1';
+        $secret = 'd332c90c0f834eabe2e32e35de8902ae';
+        $url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid='.$appid.'&secret='.$secret;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        $access_token =  $output??'';
+
+        $iurl = "qrcode.jpeg";
+        $tk = json_decode($access_token)->access_token;
+
+        $urlss = 'https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token='.$tk;
+        $ch = curl_init();
+        $_pageData = [
+            "page"=> "/pages/user/medals/medals",
+            "scene"=>"medal={$target_id}"
+        ];
+        $datass = json_encode($_pageData);
+        curl_setopt($ch, CURLOPT_URL, $urlss);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $datass);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        $output1 = curl_exec($ch);
+        curl_close($ch);
+        file_put_contents($iurl, $output1, true);
+        return returnData(true, "操作成功", $output1);
+    }
+
+    /**
      * 获取活动列表
      */
     public function getList(Request $request){
@@ -307,65 +347,6 @@ class ActivitysController extends Controller
             }
         }else{
             return returnData(false, "缺少展示rcid");
-        }
-    }
-
-    /**
-     * 报名参加活动
-     */
-    public function signActivity(Request $request){
-        if($request->has('rid') && $request->has('acid')){
-            $signlog = LinkUAs::where('rid', $request->rid)->where('acid', $request->acid)->get();
-            if(count($signlog)==0){
-                $sign = new LinkUAs();
-                $sign->fill($request->all());
-                try {
-                    DB::beginTransaction();
-                        $sign->save();
-                    DB::commit();
-                    unset($sign['id']);
-                    return returnData(true, "报名成功", $sign);
-                } catch (\Throwable $th) {
-                    DB::rollBack();
-                    return returnData(false, $th->getMessage());
-                }
-            }else{
-                return returnData(false, "您已经报名过了", $signlog);
-            }
-        }else{
-            return returnData(false, "缺失rid或acid", null);
-        }
-    }
-
-    /**
-     * 查询用户是否已报名
-     */
-    public function signActivityCheck(Request $request){
-        if($request->has('rid') && $request->has('acid')){
-            $signlog = LinkUAs::where('rid', $request->rid)->where('acid', $request->acid)->first();
-            if($signlog){
-                return returnData(true, "已报名", $signlog);
-            }else{
-                return returnData(false, "未报名", null);
-            }
-        }else{
-            return returnData(false, "缺失rid或acid", null);
-        }
-    }
-
-    /**
-     * 获取已报名人数
-     */
-    public function getSignNum(Request $request){
-        if($request->has('acid')){
-            try {
-                $signlog = LinkUAs::where('acid', $request->acid)->get();
-                return returnData(true, "操作成功", count($signlog));
-            } catch (\Throwable $th) {
-                return returnData(false, "操作失败", $th);
-            }
-        }else{
-            return returnData(false, "缺少acid", null);
         }
     }
 }

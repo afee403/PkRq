@@ -39,7 +39,7 @@
           <span style="color:red">*</span>标题
         </label>
         <div class="layui-input-block">
-          <input type="text" id="title" name="title" required="" lay-verify="required" autocomplete="off" placeholder="请输入课程标题" class="layui-input">
+          <input type="text" id="title" name="title" required="" lay-verify="required" autocomplete="off" placeholder="请输入展示标题" class="layui-input">
         </div>
       </div>
       <div class="layui-form-item">
@@ -47,7 +47,7 @@
           <span style="color:red">*</span>内容
         </label>
         <div class="layui-input-block">
-          <textarea id="text" required="" name="text" lay-verify="required" placeholder="请输入课程内容，使用 回车或<br> 换行" class="layui-textarea"></textarea>
+          <textarea id="text" required="" name="text" lay-verify="required" placeholder="请输入展示内容，使用 回车或<br> 换行" class="layui-textarea"></textarea>
         </div>
       </div>
 
